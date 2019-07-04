@@ -1,3 +1,5 @@
+## no critic: TestingAndDebugging::ProhibitProlongedStrictureOverride
+
 package Dist::Zilla::Plugin::Rinci::GenSchemaV;
 
 # DATE
@@ -116,10 +118,12 @@ sub munge_file {
                     next unless $mod_rec->{phase} eq 'runtime';
                     $self->_add_prereq($mod_rec->{name} => $mod_rec->{version} // version_from_pmversions($mod_rec->{name}) // 0);
                 }
-                push @code, "\$Validators{'$key'} = " . $plc->expr_validator_sub(%cargs, cd=>$cd) . ";\n";
+                my $comment = "schema is: $dmp_schema"; $comment =~ s/^/# /gm;
+                push @code, "$comment\n";
+                push @code, "\$Validators{'$key'} = " . $plc->expr_validator_sub(%cargs, cd=>$cd) . ";\n\n";
                 $seen_keys{$key}++;
             }
-            push @code, "\$Args_Validators{'$ent_name'}{'$arg_name'} = \$Validators{'$key'};\n";
+            push @code, "\$Args_Validators{'$ent_name'}{'$arg_name'} = \$Validators{'$key'};\n\n";
         }
     }
 
